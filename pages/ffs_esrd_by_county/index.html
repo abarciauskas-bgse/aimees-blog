@@ -7,7 +7,7 @@
     @import url(https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300|Josefin+Slab|Arvo|Lato|Vollkorn|Abril+Fatface|Old+Standard+TT|Droid+Sans|Lobster|Inconsolata|Montserrat|Playfair+Display|Karla|Alegreya|Libre+Baskerville|Merriweather|Lora|Archivo+Narrow|Neuton|Signika|Questrial|Fjalla+One|Bitter|Varela+Round);
 
     .background {
-      fill: #eee;
+      fill: none;
       pointer-events: all;
     }
 
@@ -65,7 +65,32 @@
   </style>
 
   <body>
-    <div class="container"></div>
+
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">Aimee B</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+          <ul class="nav navbar-nav">
+            <li class="active"><a href="#">Home</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#contact">Contact</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container" id="main" style="padding: 60px 15px;">
+      <h2>2015 County-level Fee for Service (FFS) Data for Shared Savings Program (SSP)</h2>
+      <p>Data source: <a href="https://data.cms.gov/Special-Programs-Initiatives-Medicare-Shared-Savin/2015-County-level-Fee-for-Service-FFS-Data-for-Sha/njws-h2xd">data.cms.gov</a></p>
+    </div>
   </body>
 
   <footer>
@@ -79,13 +104,13 @@
         centered,
         ffsData;
 
-    var svg = d3.select(".container").append("svg")
+    var svg = d3.select("#main").append("svg")
       .attr("width", width)
       .attr("height", height);
 
     // Define color scale
     var color = d3.scale.linear()
-      .domain([25000, 170000])
+      .domain([42776.66, 131557.33])
       // .clamp(true)
       .range(['#fff', '#409A99']);
 
@@ -142,6 +167,9 @@
 
     // Get province color
     function fillFn(d) {
+      if (isNaN(d.per_capita_exp_esrd)) {
+        return '#eee';
+      }
       return color(d.per_capita_exp_esrd);
     }
 
@@ -178,14 +206,16 @@
       .offset([-10, 0])
       .html(function(d) {
         var expenditure = isNaN(d.per_capita_exp_esrd) ? d.per_capita_exp_esrd : "$" + d3.format(",.2f")(d.per_capita_exp_esrd);
-        return "<text><strong>Per capital ESRD care:</strong> " + expenditure + "</text>";
+        return "<text><strong>" + d.county_name + ", " + d.state_name + ":</strong> " + expenditure + "</text>";
       })  
     svg.call(tip);
 
     function mouseover(d){
-      // Highlight hovered province
-      d3.select(this).style('fill', 'orange');
-      tip.show(d);
+      if (!isNaN(d.per_capita_exp_esrd)) {
+        // Highlight hovered province
+        d3.select(this).style('fill', 'orange');
+        tip.show(d);
+      }
     }
 
     function mouseout(d){
@@ -220,11 +250,13 @@
           var state_and_county_id = d.properties.STATE + '-' + d.properties.NAME;
           var county_data = ffsData[state_and_county_id];
           if (county_data != undefined && county_data.per_capita_exp_esrd != 'nan') {
+            d.county_name = county_data.county_name;
+            d.state_name = county_data.state_name;
             d.per_capita_exp_esrd = county_data.per_capita_exp_esrd;
           } else {
             d.per_capita_exp_esrd = 'not available';
-          }
-        });
+          }           
+        });       
 
         // Update color scale domain based on data
         // color.domain([0, d3.max(features, nameLength)]);
