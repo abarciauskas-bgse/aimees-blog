@@ -110,7 +110,7 @@
 
     // Define color scale
     var color = d3.scale.linear()
-      .domain([42776.66, 131557.33])
+      .domain([29549.29, 148861.78])
       // .clamp(true)
       .range(['#fff', '#409A99']);
 
@@ -270,7 +270,65 @@
             .style('fill', fillFn)
             .on('mouseover', mouseover)
             .on('mouseout', mouseout)
-            .on('click', clicked);        
+            .on('click', clicked);
+
+
+        // scatter plot
+        var main = svg.append('g')
+          .attr('width', width)
+          .attr('height', height)
+          .attr('class', 'main')   
+
+        per_capita_exp_esrds = [];
+        person_years_esrds = [];
+        Object.keys(data).forEach(function(countyKey) {
+          esrd_value = data[countyKey].per_capita_exp_esrd;
+          person_years_value = data[countyKey].avg_risk_score_esrd;
+          if (esrd_value != 'nan') {
+            per_capita_exp_esrds.push(parseFloat(esrd_value));
+            person_years_esrds.push(parseFloat(person_years_value));
+          }
+        });
+
+        var x = d3.scale.linear()
+                  .domain([d3.min(person_years_esrds), d3.max(person_years_esrds)])
+                  .range([ 0, width ]);
+        
+        var y = d3.scale.linear()
+                .domain([0, d3.max(per_capita_exp_esrds)])
+                .range([ height, 0 ]);
+
+        // draw the x axis
+        var xAxis = d3.svg.axis()
+          .scale(x)
+          .orient('bottom');
+
+        main.append('g')
+          .attr('transform', 'translate(0,' + height + ')')
+          .attr('class', 'main axis date')
+          .call(xAxis);
+
+        // draw the y axis
+        var yAxis = d3.svg.axis()
+          .scale(y)
+          .orient('left');
+
+        main.append('g')
+          .attr('transform', 'translate(0,0)')
+          .attr('class', 'main axis date')
+          .call(yAxis);
+
+        var g = main.append("svg:g");
+        var scatterData = person_years_esrds.map(function (e, i) {
+            return [e, per_capita_exp_esrds[i]];
+        });
+        console.log(scatterData);
+        g.selectAll("scatter-dots")
+          .data(scatterData)
+          .enter().append("svg:circle")
+              .attr("cx", function (d,i) { return x(d[0]); } )
+              .attr("cy", function (d) { return y(d[1]); } )
+              .attr("r", 2);                    
       }); 
     }); 
 
