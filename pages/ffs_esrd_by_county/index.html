@@ -84,11 +84,11 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="#">Aimee B</a>
+          <a class="navbar-brand" href="/">Aimee B</a>
         </div>
         <div id="navbar" class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
-            <li class="active"><a href="#">Home</a></li>
+            <li class="active"><a href="/">Home</a></li>
             <li><a href="#about">About</a></li>
             <li><a href="#contact">Contact</a></li>
           </ul>
@@ -97,8 +97,26 @@
     </nav>
 
     <div class="container" id="main" style="padding: 60px 15px;">
-      <h2>2015 County-level Fee for Service (FFS) Data for Shared Savings Program (SSP)</h2>
-      <p>Data source: <a href="https://data.cms.gov/Special-Programs-Initiatives-Medicare-Shared-Savin/2015-County-level-Fee-for-Service-FFS-Data-for-Sha/njws-h2xd">data.cms.gov</a></p>
+      <div class="col-md-2"></div>
+      <div class="col-lg-8">
+        <h2>2015 County-level Fee for Service (FFS) Expenditures on End-Stage Renal Disease</h2>
+        <p>Data source: <a href="https://data.cms.gov/Special-Programs-Initiatives-Medicare-Shared-Savin/2015-County-level-Fee-for-Service-FFS-Data-for-Sha/njws-h2xd">data.cms.gov</a></p>
+        <p>While watching the Frontline documentary <a href="https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=1&ved=0ahUKEwi4i-C2-47VAhVmQJoKHUchAlYQFggmMAA&url=http%3A%2F%2Fwww.pbs.org%2Fwgbh%2Fpages%2Ffrontline%2Fsickaroundtheworld%2F&usg=AFQjCNH6stG_UzaxPFoVEHNnQPuoTnLk3w">"Sick Around the World"</a>, I was introduced to one health care characteristic shared among other countries with lower costs: <b>cost standardization</b>.</p>
+
+        <p>The government of Japan, for example, sets costs for treatments and drugs every 2 years (<a href="http://www.washingtonpost.com/wp-dyn/content/article/2009/09/06/AR2009090601630.html">Japan's Health-Care System</a>). Cost standardization keeps service, drug <i>and</i> administrative costs low. However, it also seems unlikely that the U.S. system will be able to standardize costs anytime soon: A system of set prices is bad for providers and providers have gone on strike in countries which follow this model. Strikes in France are just one example.</p>
+
+        <p>In the United States, one example of the variation in costs is the average per capita cost of a year of treatment of those with end-stage renal disease (ESRD). Below is a visualization of how this cost varies across United States counties.</p>
+
+        <p>The lowest average cost for a year of care is <b>$29,549.29</b>, while the highest cost is <b>$148,861.78</b></p>
+
+        <p>What might be behind this difference in the cost of care? There are many factors to consider, but we can clearly see risk is correlated with cost in the plot below the map. "Risk" is a combination of patient diagnoses and demographic factors (<a href="https://www.securityhealth.org/provider-manual/shared-content/claims-processing-policies-and-procedures/risk-adjustment---hcc-coding">learn more</a>).</p>
+
+        <br />
+        <h4>Per capita ESRD Expenditures by County</h4>
+        <div id="svg"></div>
+
+        <p>This data is for holistic care of ESRD. ESRD treatment comprises many services and drugs which factor into the total cost. Total cost is just one way to look at cost variation. Another way, which would better highlight discussion about cost standardization, is to look the variation in cost of individual services and drugs. This would be a good next step, however, while some drug cost data is available, I have yet to find data on individual services.</p>
+      </div>
     </div>
   </body>
 
@@ -108,8 +126,8 @@
     <script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
     <script>
 
-    var width = 820,
-        height = 500,
+    var width = 700,
+        height = 450,
         marginBottom = 50,
         marginRight = 30,
         centered,
@@ -131,7 +149,7 @@
       .projection(projection);
 
     // Set svg width & height
-    var svg = d3.select("#main").append("svg")
+    var svg = d3.select("#svg").append("svg")
       .attr("width", width+marginRight)
       .attr("height", height*2+marginBottom);
 
@@ -222,7 +240,6 @@
     svg.call(tip);
 
     function mouseover(d){
-      console.log('mousing over');
       if (!isNaN(d.per_capita_exp_esrd)) {
         // Highlight hovered province
         d3.select(this).style('fill', 'orange');
@@ -309,7 +326,7 @@
         var x = d3.scale.linear()
                   .domain([d3.min(avg_risk_scores), d3.max(avg_risk_scores)])
                   .range([ 0, width ]);
-        
+
         var y = d3.scale.linear()
                 .domain([0, d3.max(per_capita_exp_esrds)])
                 .range([ height, 0 ]);
@@ -319,7 +336,7 @@
           .scale(x)
           .orient('bottom');
 
-        var secondPlotXOffset = 90;
+        var secondPlotXOffset = 68;
 
         main.append('g')
           .attr('transform', 'translate(' + secondPlotXOffset + ',' +(height*2)+ ')')
@@ -329,7 +346,7 @@
 
         d3.select('#scatterplot-xaxis')
           .append('text')
-          .attr('transform', 'translate(' + (width-220) + ',-5)')
+          .attr('transform', 'translate(' + (width-230) + ',-5)')
           .text('Average ESRD HCC Risk Score');
 
         // draw the y axis
